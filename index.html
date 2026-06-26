@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>灵感转瞬记录仪 — 极致快速的灵感捕捉工具</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app">
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <a href="#" class="sidebar-logo">
+          <span class="sidebar-logo-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+              <line x1="12" x2="12" y1="19" y2="22"></line>
+            </svg>
+          </span>
+          灵感记录仪
+        </a>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <div class="nav-section-title">主要功能</div>
+          <div class="nav-item active" data-view="record">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polygon points="10 8 16 12 10 16 10 8"></polygon>
+            </svg>
+            快速记录
+          </div>
+          <div class="nav-item" data-view="list">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="8" x2="21" y1="6" y2="6"></line>
+              <line x1="8" x2="21" y1="12" y2="12"></line>
+              <line x1="8" x2="21" y1="18" y2="18"></line>
+              <line x1="3" x2="3.01" y1="6" y2="6"></line>
+              <line x1="3" x2="3.01" y1="12" y2="12"></line>
+              <line x1="3" x2="3.01" y1="18" y2="18"></line>
+            </svg>
+            灵感列表
+            <span class="nav-badge" style="display:none;">0</span>
+          </div>
+          <div class="nav-item" data-view="review">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect>
+              <line x1="16" x2="16" y1="2" y2="6"></line>
+              <line x1="8" x2="8" y1="2" y2="6"></line>
+              <line x1="3" x2="21" y1="10" y2="10"></line>
+              <path d="m9 16 2 2 4-4"></path>
+            </svg>
+            每日回顾
+            <span class="nav-badge" style="display:none;">0</span>
+          </div>
+        </div>
+        
+        <div class="nav-section">
+          <div class="nav-section-title">分类</div>
+          <div class="nav-item" data-filter="inspiration" onclick="App.filterByType('inspiration')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+            </svg>
+            灵感创意
+          </div>
+          <div class="nav-item" data-filter="todo" onclick="App.filterByType('todo')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 11l3 3L22 4"></path>
+              <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+            </svg>
+            待办事项
+          </div>
+          <div class="nav-item" data-filter="memo" onclick="App.filterByType('memo')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" x2="8" y1="13" y2="13"></line>
+              <line x1="16" x2="8" y1="17" y2="17"></line>
+            </svg>
+            备忘记录
+          </div>
+          <div class="nav-item" data-filter="archived" onclick="App.filterByType('archived')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="20" height="5" x="2" y="3" rx="1"></rect>
+              <path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"></path>
+              <path d="M10 12h4"></path>
+            </svg>
+            已归档
+          </div>
+        </div>
+        
+        <div class="nav-section">
+          <div class="nav-section-title">其他</div>
+          <div class="nav-item" data-view="settings">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+            设置
+          </div>
+        </div>
+      </nav>
+      
+      <div class="sidebar-footer">
+        <div class="sidebar-stats">
+          <div class="stat-item">
+            <div class="stat-number">0</div>
+            <div class="stat-label">总灵感</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">0</div>
+            <div class="stat-label">今日</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+    
+    <main class="main-content">
+      <header class="topbar">
+        <div style="display:flex;align-items:center;gap:0.75rem;">
+          <button class="mobile-menu-btn" id="mobileMenuBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="4" x2="20" y1="12" y2="12"></line>
+              <line x1="4" x2="20" y1="6" y2="6"></line>
+              <line x1="4" x2="20" y1="18" y2="18"></line>
+            </svg>
+          </button>
+          <h1 class="topbar-title">快速记录</h1>
+        </div>
+        <div class="topbar-actions">
+          <div class="search-box" style="display:none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="m21 21-4.3-4.3"></path>
+            </svg>
+            <input type="text" id="searchInput" placeholder="搜索灵感...">
+          </div>
+        </div>
+      </header>
+      
+      <div class="content-area">
+        <div class="view active" id="recordView">
+          <div class="record-view">
+            <div class="record-hero">
+              <h2 class="record-title">
+                <span class="highlight">灵感转瞬</span>记录仪
+              </h2>
+              <p class="record-subtitle">
+                走路时、洗澡时、睡前突然冒出的好想法，<br>
+                3秒语音捕捉，再也不会遗忘。
+              </p>
+            </div>
+            
+            <div class="record-button-container">
+              <button class="record-btn" id="recordBtn" title="点击开始录音（空格键）">
+                <svg class="mic-icon" viewBox="0 0 24 24">
+                  <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
+                  <path d="M19 10v2a7 7 0 0 1-14 0v-2" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"></path>
+                  <line x1="12" x2="12" y1="19" y2="22" stroke="white" stroke-width="2" stroke-linecap="round"></line>
+                </svg>
+              </button>
+              <p class="record-status" id="recordStatus">点击按钮开始录音</p>
+              <div class="record-timer" id="recordTimer">00:00</div>
+              
+              <div class="waveform" id="waveform">
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+              </div>
+            </div>
+            
+            <div class="transcript-preview" id="transcriptPreview">
+              <div class="transcript-label">实时转写</div>
+              <p class="transcript-text"></p>
+              <div class="transcript-tags" id="transcriptTags"></div>
+            </div>
+            
+            <p class="record-hint">
+              按 <kbd>空格</kbd> 开始/停止录音 · 按 <kbd>Esc</kbd> 停止
+            </p>
+          </div>
+        </div>
+        
+        <div class="view" id="listView">
+          <div class="list-view-header">
+            <h2 class="list-view-title">灵感列表</h2>
+            <p class="list-view-desc">浏览和管理你捕捉到的所有灵感</p>
+          </div>
+          
+          <div class="filter-bar">
+            <button class="filter-btn active" data-filter="all">全部</button>
+            <button class="filter-btn" data-filter="inspiration">灵感</button>
+            <button class="filter-btn" data-filter="todo">待办</button>
+            <button class="filter-btn" data-filter="memo">备忘</button>
+            <button class="filter-btn" data-filter="mood">情绪</button>
+            <button class="filter-btn" data-filter="book">书摘</button>
+            <button class="filter-btn" data-filter="archived">已归档</button>
+          </div>
+          
+          <div class="inspiration-list" id="inspirationList"></div>
+        </div>
+        
+        <div class="view" id="reviewView">
+          <div class="review-view-header">
+            <div class="review-date" id="reviewDate"></div>
+            <h2 class="review-title">每日灵感回顾</h2>
+            <p class="list-view-desc">快速浏览今天记录的灵感，决定如何处理</p>
+          </div>
+          
+          <div class="review-stats"></div>
+          
+          <div class="review-section">
+            <h3 class="review-section-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                <line x1="12" x2="12" y1="19" y2="22"></line>
+              </svg>
+              今日灵感
+            </h3>
+            <div class="review-list"></div>
+          </div>
+          
+          <div class="review-summary">
+            <h3 class="review-summary-title">让灵感从碎片变成价值</h3>
+            <p class="review-summary-text">
+              通过每天的回顾，把随手记下的碎碎念变成可执行的想法，甚至可输出的作品。
+            </p>
+            <button class="filter-btn active" onclick="UI.switchView('record')">
+              继续捕捉灵感
+            </button>
+          </div>
+        </div>
+        
+        <div class="view" id="settingsView">
+          <div class="settings-view">
+            <h2>设置</h2>
+            
+            <div class="settings-section">
+              <h3 class="settings-section-title">录音设置</h3>
+              <div class="setting-item">
+                <div class="setting-info">
+                  <h4>自动语音转文字</h4>
+                  <p>录音时自动将语音转换为文字</p>
+                </div>
+                <div class="toggle-switch active" data-setting="autoTranscribe"></div>
+              </div>
+              <div class="setting-item">
+                <div class="setting-info">
+                  <h4>AI 自动分类标签</h4>
+                  <p>自动识别内容类型并生成标签</p>
+                </div>
+                <div class="toggle-switch active" data-setting="autoTag"></div>
+              </div>
+            </div>
+            
+            <div class="settings-section">
+              <h3 class="settings-section-title">回顾提醒</h3>
+              <div class="setting-item">
+                <div class="setting-info">
+                  <h4>每日回顾提醒</h4>
+                  <p>每天固定时间提醒回顾当日灵感</p>
+                </div>
+                <div class="toggle-switch active" data-setting="dailyReview"></div>
+              </div>
+            </div>
+            
+            <div class="settings-section">
+              <h3 class="settings-section-title">关于</h3>
+              <div class="setting-item">
+                <div class="setting-info">
+                  <h4>灵感转瞬记录仪</h4>
+                  <p>版本 1.0.0 · 学习工作赛道创意产品</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  
+  <div class="detail-modal" id="detailModal">
+    <div class="detail-modal-content">
+      <div class="detail-modal-header">
+        <h3 class="detail-modal-title">灵感详情</h3>
+        <button class="detail-close-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 6 6 18"></path>
+            <path d="m6 6 12 12"></path>
+          </svg>
+        </button>
+      </div>
+      <div class="detail-modal-body">
+        <p class="detail-content"></p>
+        <div class="detail-meta"></div>
+        <div class="detail-tags"></div>
+        
+        <div class="ai-expand-section">
+          <div class="ai-expand-header">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+              <line x1="12" x2="12" y1="19" y2="22"></line>
+            </svg>
+            <span>AI 灵感展开</span>
+          </div>
+          <p class="ai-expand-text"></p>
+        </div>
+        
+        <div class="detail-actions"></div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    const App = {
+      filterByType(type) {
+        UI.switchView('list');
+        AppState.currentFilter = type;
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.filter === type);
+        });
+        UI.renderInspirationList();
+      }
+    };
+    
+    const reviewDateEl = document.getElementById('reviewDate');
+    if (reviewDateEl) {
+      const now = new Date();
+      const weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+      reviewDateEl.textContent = `${now.getFullYear()}年${now.getMonth() + 1}月${now.getDate()}日 · ${weekdays[now.getDay()]}`;
+    }
+  </script>
+  <script src="js/app.js"></script>
+</body>
+</html>
