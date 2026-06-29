@@ -111,10 +111,71 @@ const AITagger = {
   },
 
   generateSummary(text) {
-    const sentences = text.split(/[。！？.!?\n]/).filter(s => s.trim().length > 0);
-    if (sentences.length === 0) return text.slice(0, 50) + '...';
-    if (sentences.length === 1) return sentences[0];
-    return sentences.slice(0, 2).join('。') + '。';
+    const cleanText = text.trim();
+    const sentences = cleanText.split(/[。！？.!?\n]/).filter(s => s.trim().length > 0);
+    if (sentences.length === 0) return cleanText.slice(0, 25);
+    
+    let firstSentence = sentences[0].trim();
+    
+    const patterns = [
+      { pattern: /想到了?(?:一个)?(新功能|好主意|点子|想法|创意)(?:，|可以|的|$)/, type: 'idea' },
+      { pattern: /(?:明天|今天|下周)(上午|下午|晚上)?(\d+点)(?:开会|见面|约)/, type: 'todo' },
+      { pattern: /读《([^》]+)》/, type: 'book' },
+    ];
+    
+    for (const { pattern, type } of patterns) {
+      const match = cleanText.match(pattern);
+      if (match) {
+        let core = '';
+        if (type === 'idea') {
+          core = match[1] || '新想法';
+        } else if (type === 'todo') {
+          const period = match[1] || '';
+          const time = match[2] || '';
+          const actionMatch = cleanText.match(/(开会|见面|约|提交|准备|完成)/);
+          const action = actionMatch ? actionMatch[1] : '事项';
+          core = period + time + action;
+        } else if (type === 'book') {
+          core = match[1];
+          if (core.length > 12) core = core.slice(0, 12) + '...';
+        }
+        
+        const prefixMap = { idea: '灵感：', todo: '待办：', book: '书摘：' };
+        return (prefixMap[type] || '') + core;
+      }
+    }
+    
+    const todoKeywords = ['记得', '需要', '要去', '明天', '今天', '下周', '开会', '完成', '提交', '准备'];
+    const ideaKeywords = ['想到', '想法', '灵感', '创意', '可以', '应该', '如果'];
+    const bookKeywords = ['读', '书', '文章', '看到'];
+    const feelingKeywords = ['感觉', '觉得', '心情', '开心', '难过', '焦虑', '放松'];
+    
+    let prefix = '';
+    for (const kw of todoKeywords) {
+      if (cleanText.includes(kw)) { prefix = '待办：'; break; }
+    }
+    if (!prefix) {
+      for (const kw of ideaKeywords) {
+        if (cleanText.includes(kw)) { prefix = '灵感：'; break; }
+      }
+    }
+    if (!prefix) {
+      for (const kw of bookKeywords) {
+        if (cleanText.includes(kw)) { prefix = '书摘：'; break; }
+      }
+    }
+    if (!prefix) {
+      for (const kw of feelingKeywords) {
+        if (cleanText.includes(kw)) { prefix = '心情：'; break; }
+      }
+    }
+    
+    const maxLen = 25;
+    if (firstSentence.length > maxLen) {
+      firstSentence = firstSentence.slice(0, maxLen) + '...';
+    }
+    
+    return prefix + firstSentence;
   },
 
   expandIdea(text) {
@@ -391,16 +452,121 @@ const UI = {
 
     const recordBtn = document.getElementById('recordBtn');
     if (recordBtn) {
-      recordBtn.addEventListener('click', () => this.toggleRecording());
+      let holdTimer = null;
+      let isLocked = false;
+      let isHoldMode = false;
+
+      const startHold = (e) => {
+        if (AppState.isRecording && isLocked) return;
+        e.preventDefault();
+        isHoldMode = true;
+        isLocked = false;
+        this.startRecording();
+        
+        holdTimer = setTimeout(() => {
+          isLocked = true;
+          this.showToast('已锁定长录模式，再次点击停止', 'success');
+          const status = document.getElementById('recordStatus');
+          if (status) status.textContent = '长录模式中 · 点击按钮停止';
+        }, 1000);
+      };
+
+      const endHold = (e) => {
+        if (!isHoldMode) return;
+        e.preventDefault();
+        
+        if (holdTimer) {
+          clearTimeout(holdTimer);
+          holdTimer = null;
+        }
+        
+        if (isLocked) {
+          isHoldMode = false;
+          return;
+        }
+        
+        if (AppState.isRecording) {
+          isHoldMode = false;
+          this.stopRecording();
+        }
+      };
+
+      recordBtn.addEventListener('pointerdown', startHold);
+      recordBtn.addEventListener('pointerup', endHold);
+      recordBtn.addEventListener('pointerleave', (e) => {
+        if (isHoldMode && !isLocked) {
+          endHold(e);
+        }
+      });
+      recordBtn.addEventListener('pointercancel', (e) => {
+        if (isHoldMode && !isLocked) {
+          endHold(e);
+        }
+      });
+      
+      recordBtn.addEventListener('click', (e) => {
+        if (isHoldMode) {
+          e.preventDefault();
+          e.stopPropagation();
+          return;
+        }
+        if (AppState.isRecording && isLocked) {
+          isLocked = false;
+          this.stopRecording();
+        }
+      });
     }
 
+    let spaceHoldTimer = null;
+    let spaceLocked = false;
+    let spaceHoldMode = false;
+
     document.addEventListener('keydown', (e) => {
-      if (e.code === 'Space' && AppState.currentView === 'record') {
+      if (e.code === 'Space' && AppState.currentView === 'record' && !e.repeat) {
         e.preventDefault();
-        this.toggleRecording();
+        if (AppState.isRecording && spaceLocked) return;
+        
+        spaceHoldMode = true;
+        spaceLocked = false;
+        this.startRecording();
+        
+        spaceHoldTimer = setTimeout(() => {
+          spaceLocked = true;
+          this.showToast('已锁定长录模式，按空格/Esc停止', 'success');
+          const status = document.getElementById('recordStatus');
+          if (status) status.textContent = '长录模式中 · 按空格/Esc停止';
+        }, 1000);
       }
       if (e.code === 'Escape' && AppState.isRecording) {
-        this.toggleRecording();
+        if (spaceHoldTimer) {
+          clearTimeout(spaceHoldTimer);
+          spaceHoldTimer = null;
+        }
+        spaceHoldMode = false;
+        spaceLocked = false;
+        this.stopRecording();
+      }
+    });
+
+    document.addEventListener('keyup', (e) => {
+      if (e.code === 'Space' && AppState.currentView === 'record') {
+        e.preventDefault();
+        if (!spaceHoldMode) return;
+        
+        if (spaceHoldTimer) {
+          clearTimeout(spaceHoldTimer);
+          spaceHoldTimer = null;
+        }
+        
+        if (spaceLocked) {
+          spaceHoldMode = false;
+          return;
+        }
+        
+        if (AppState.isRecording) {
+          spaceHoldMode = false;
+          this.stopRecording();
+        }
       }
     });
 
@@ -544,7 +710,7 @@ const UI = {
     
     if (recordBtn) recordBtn.classList.add('recording');
     if (status) {
-      status.textContent = '正在录音...';
+      status.textContent = '正在录音 · 松手保存';
       status.classList.add('recording');
     }
     if (timer) {
@@ -578,7 +744,7 @@ const UI = {
     
     if (recordBtn) recordBtn.classList.remove('recording');
     if (status) {
-      status.textContent = '点击按钮开始录音';
+      status.textContent = '按住按钮录音，松手自动保存';
       status.classList.remove('recording');
     }
     if (timer) timer.classList.remove('active');
@@ -720,6 +886,8 @@ const UI = {
     
     const time = this.formatTime(inspiration.createdAt);
     
+    const summary = AITagger.generateSummary(inspiration.content);
+    
     return `
       <div class="inspiration-card" data-id="${inspiration.id}">
         <div class="inspiration-card-header">
@@ -733,6 +901,7 @@ const UI = {
           </div>
           <span class="inspiration-time">${time}</span>
         </div>
+        <h3 class="inspiration-summary">${this.escapeHtml(summary)}</h3>
         <p class="inspiration-content">${this.escapeHtml(inspiration.content)}</p>
         <div class="inspiration-tags">
           ${inspiration.tags.map(tag => `<span class="tag tag-${inspiration.type}">${this.escapeHtml(tag)}</span>`).join('')}

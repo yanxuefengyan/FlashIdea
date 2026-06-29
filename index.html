@@ -156,14 +156,14 @@
             </div>
             
             <div class="record-button-container">
-              <button class="record-btn" id="recordBtn" title="点击开始录音（空格键）">
+              <button class="record-btn" id="recordBtn" title="按住录音，松手保存（长按1秒锁定长录）">
                 <svg class="mic-icon" viewBox="0 0 24 24">
                   <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
                   <path d="M19 10v2a7 7 0 0 1-14 0v-2" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"></path>
                   <line x1="12" x2="12" y1="19" y2="22" stroke="white" stroke-width="2" stroke-linecap="round"></line>
                 </svg>
               </button>
-              <p class="record-status" id="recordStatus">点击按钮开始录音</p>
+              <p class="record-status" id="recordStatus">按住按钮录音，松手自动保存</p>
               <div class="record-timer" id="recordTimer">00:00</div>
               
               <div class="waveform" id="waveform">
@@ -189,7 +189,8 @@
             </div>
             
             <p class="record-hint">
-              按 <kbd>空格</kbd> 开始/停止录音 · 按 <kbd>Esc</kbd> 停止
+              <strong>按住</strong>按钮录音，<strong>松手</strong>自动保存<br>
+              <span style="font-size:0.8rem;color:var(--muted);">长按1秒锁定长录 · 按住空格也可以录音</span>
             </p>
           </div>
         </div>
